@@ -1,5 +1,5 @@
-import { LazyMotion, domAnimation, m } from "framer-motion";
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import Link from "next/link";
 import { fadeUp } from "../../lib/landing/motion";
 import CryptoMarquee from "./CryptoMarquee";
 import DashboardPreview from "./DashboardPreview";
@@ -7,7 +7,7 @@ import HeroStats from "./HeroStats";
 import { CRYPTO_LOGOS } from "../../assets/crypto-icons";
 import { SolanaIcon, UniswapIcon } from "./crypto-marquee-icons";
 
-const MotionLink = m(Link);
+const MotionLink = (motion as any).create ? (motion as any).create(Link) : (Link as any);
 
 const TRUST_ITEMS = [
   {
@@ -28,7 +28,7 @@ const TRUST_ITEMS = [
 
 export default function Hero() {
   return (
-    <LazyMotion features={domAnimation} strict>
+    <div>
       {/* Negative top margin pulls the section (and its aurora/grid background)
           under the transparent sticky navbar; the extra top padding compensates. */}
       <section className="relative -mt-[69px] overflow-hidden px-6 pt-[calc(5rem+69px)] pb-24 md:pt-[calc(7rem+69px)] md:pb-32">
@@ -44,7 +44,7 @@ export default function Hero() {
               "conic-gradient(from 0deg, rgba(16,185,129,0.35), rgba(6,182,212,0.28), rgba(59,130,246,0.22), rgba(139,92,246,0.28), rgba(16,185,129,0.35))",
           }}
         />
-        <m.div
+        <motion.div
           aria-hidden
           className="pointer-events-none absolute -top-32 left-1/2 -z-10 h-[32rem] w-[32rem] -translate-x-1/2"
           style={{
@@ -58,7 +58,7 @@ export default function Hero() {
           }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
         />
-        <m.div
+        <motion.div
           aria-hidden
           className="pointer-events-none absolute top-10 right-[10%] -z-10 h-72 w-72 sm:h-96 sm:w-96"
           style={{
@@ -68,7 +68,7 @@ export default function Hero() {
           animate={{ x: [0, -20, 15, 0], y: [0, 20, -10, 0] }}
           transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
         />
-        <m.div
+        <motion.div
           aria-hidden
           className="pointer-events-none absolute bottom-0 left-[5%] -z-10 h-64 w-64 sm:h-80 sm:w-80"
           style={{
@@ -86,7 +86,7 @@ export default function Hero() {
         />
 
         {/* Floating crypto elements (decorative, desktop only) */}
-        <m.img
+        <motion.img
           src={CRYPTO_LOGOS.BTCB}
           alt=""
           aria-hidden
@@ -96,7 +96,7 @@ export default function Hero() {
           animate={{ y: [0, -14, 0], rotate: [0, 6, 0] }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
-        <m.img
+        <motion.img
           src={CRYPTO_LOGOS.ETH}
           alt=""
           aria-hidden
@@ -106,25 +106,25 @@ export default function Hero() {
           animate={{ y: [0, 12, 0], rotate: [0, -8, 0] }}
           transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
-        <m.div
+        <motion.div
           aria-hidden
           className="pointer-events-none absolute left-[16%] top-[26rem] hidden opacity-25 lg:block"
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         >
           <SolanaIcon className="h-8 w-8" />
-        </m.div>
-        <m.div
+        </motion.div>
+        <motion.div
           aria-hidden
           className="pointer-events-none absolute right-[18%] top-[24rem] hidden opacity-25 lg:block"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
         >
           <UniswapIcon className="h-8 w-8" />
-        </m.div>
+        </motion.div>
 
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-          <m.h1
+          <motion.h1
             initial="hidden"
             animate="show"
             variants={fadeUp}
@@ -132,9 +132,9 @@ export default function Hero() {
           >
             Trade markets with{" "}
             <span className="text-gradient-nova">confidence and speed</span>
-          </m.h1>
+          </motion.h1>
 
-          <m.p
+          <motion.p
             initial="hidden"
             animate="show"
             variants={fadeUp}
@@ -144,9 +144,9 @@ export default function Hero() {
             novaFi gives traders institutional-grade infrastructure, real-time
             data, and a clean interface &mdash; so you can focus on strategy,
             not friction.
-          </m.p>
+          </motion.p>
 
-          <m.div
+          <motion.div
             initial="hidden"
             animate="show"
             variants={fadeUp}
@@ -154,7 +154,7 @@ export default function Hero() {
             className="mt-10 flex flex-col gap-4 sm:flex-row"
           >
             <MotionLink
-              to="/swap"
+              href="/swap"
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.98 }}
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-nova-animated px-8 py-3.5 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25 transition-shadow hover:shadow-xl hover:shadow-nova-emerald/35"
@@ -171,17 +171,17 @@ export default function Hero() {
               </svg>
             </MotionLink>
             <MotionLink
-              to="/about"
+              href="/about"
               whileHover={{ scale: 1.04, borderColor: "rgba(6,182,212,0.6)" }}
               whileTap={{ scale: 0.98 }}
               className="rounded-full border border-white/15 bg-white/5 px-8 py-3.5 text-sm font-semibold text-nova-text backdrop-blur-md"
             >
               Learn More
             </MotionLink>
-          </m.div>
+          </motion.div>
 
           {/* Trust indicators */}
-          <m.ul
+          <motion.ul
             initial="hidden"
             animate="show"
             variants={fadeUp}
@@ -207,7 +207,7 @@ export default function Hero() {
                 {item.label}
               </li>
             ))}
-          </m.ul>
+          </motion.ul>
 
           <CryptoMarquee delay={0.25} />
 
@@ -216,6 +216,6 @@ export default function Hero() {
           <HeroStats />
         </div>
       </section>
-    </LazyMotion>
+    </div>
   );
 }

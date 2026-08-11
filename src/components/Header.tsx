@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useConnectModal, useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
 import { useWallet } from "../hooks/useWallet";
 import logo from "../assets/logo/logoNovaFi.png";
@@ -18,11 +19,11 @@ export function Header() {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { openChainModal } = useChainModal();
-  const location = useLocation();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const truncate = (addr: string) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : "";
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => router.pathname === path;
 
   return (
     <>
@@ -30,8 +31,8 @@ export function Header() {
         <div className="mx-auto max-w-7xl px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center shrink-0">
-            <img src={logo} alt="novaFi" className="h-11 w-auto object-contain drop-shadow-lg" />
+          <Link href="/" className="flex items-center shrink-0">
+            <img src={logo.src} alt="novaFi" className="h-11 w-auto object-contain drop-shadow-lg" />
           </Link>
 
           {/* Desktop Nav */}
@@ -39,7 +40,7 @@ export function Header() {
             {NAV_LINKS.map(({ label, path }) => (
               <Link
                 key={path}
-                to={path}
+                href={path}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   isActive(path)
                     ? "bg-indigo-950 border border-indigo-700/50 text-white"
@@ -54,7 +55,7 @@ export function Header() {
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
             <Link
-              to="/swap"
+              href="/swap"
               className="hidden sm:inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border border-indigo-800/50 text-slate-300 hover:border-cyan-500/40 hover:text-white hover:bg-white/5 transition-all"
             >
               Buy &amp; Sell
@@ -118,7 +119,7 @@ export function Header() {
             {NAV_LINKS.map(({ label, path }) => (
               <Link
                 key={path}
-                to={path}
+                href={path}
                 onClick={() => setMobileOpen(false)}
                 className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive(path)
@@ -130,7 +131,7 @@ export function Header() {
               </Link>
             ))}
             <Link
-              to="/swap"
+              href="/swap"
               onClick={() => setMobileOpen(false)}
               className="mt-1 px-4 py-2.5 rounded-xl text-sm font-medium text-center border border-indigo-800/50 text-slate-300 hover:border-cyan-500/40 hover:text-white transition-all"
             >

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { EASE_OUT } from "../../lib/landing/motion";
 
 const FAQS = [
@@ -34,10 +34,10 @@ export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <LazyMotion features={domAnimation} strict>
+    <>
     <section className="relative px-6 py-24">
       <div className="mx-auto max-w-3xl">
-        <m.div
+        <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
@@ -53,9 +53,9 @@ export default function FAQSection() {
           <p className="mt-4 text-nova-muted">
             Everything you need to know before you start trading.
           </p>
-        </m.div>
+        </motion.div>
 
-        <m.div
+        <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -84,7 +84,7 @@ export default function FAQSection() {
                   <span className="text-sm font-semibold text-nova-text sm:text-base">
                     {faq.question}
                   </span>
-                  <m.span
+                  <motion.span
                     animate={{ rotate: isOpen ? 45 : 0 }}
                     transition={{ duration: 0.25, ease: EASE_OUT }}
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-lg leading-none transition-colors ${
@@ -95,12 +95,12 @@ export default function FAQSection() {
                     aria-hidden
                   >
                     +
-                  </m.span>
+                  </motion.span>
                 </button>
 
                 <AnimatePresence initial={false}>
                   {isOpen && (
-                    <m.div
+                    <motion.div
                       id={`faq-panel-${i}`}
                       role="region"
                       aria-labelledby={`faq-trigger-${i}`}
@@ -113,15 +113,15 @@ export default function FAQSection() {
                       <p className="px-6 pb-5 text-sm leading-relaxed text-nova-muted">
                         {faq.answer}
                       </p>
-                    </m.div>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             );
           })}
-        </m.div>
+        </motion.div>
       </div>
     </section>
-    </LazyMotion>
+    </>
   );
 }

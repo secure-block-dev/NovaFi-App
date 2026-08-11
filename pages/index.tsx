@@ -1,8 +1,5 @@
-import dynamic from 'next/dynamic';
-import React from 'react';
+import LandingHomeView from '../src/views/landing/LandingHomeView';
 
-const SPA = dynamic(() => import('../src/App'), { ssr: false });
-
-export default function IndexPage() {
-  return <SPA />;
+export default function Home() {
+  return <LandingHomeView />;
 }

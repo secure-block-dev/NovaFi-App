@@ -1,7 +1,76 @@
 const BASE = `${process.env.REACT_APP_API_URL ?? "http://localhost:1357"}/api/pg`;
 
+type StorageKey = "token" | "user";
+
+const STORAGE_KEYS: Record<StorageKey, string> = {
+  token: "pg_token",
+  user: "pg_user",
+};
+
+function getStorage(): Storage | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+function readStorageItem(key: StorageKey): string | null {
+  const storage = getStorage();
+  // Prefer sessionStorage (safer). If nothing found, fall back to localStorage
+  // for migration and move the item into sessionStorage so future reads are
+  // consistent.
+  try {
+    if (storage) {
+      const v = storage.getItem(STORAGE_KEYS[key]);
+      if (v) return v;
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const v = window.localStorage.getItem(STORAGE_KEYS[key]);
+      if (v) {
+        // migrate into sessionStorage if available
+        try {
+          if (storage) {
+            storage.setItem(STORAGE_KEYS[key], v);
+            window.localStorage.removeItem(STORAGE_KEYS[key]);
+          }
+        } catch {
+          // ignore migration errors
+        }
+        return v;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
+function writeStorageItem(key: StorageKey, value: string) {
+  const storage = getStorage();
+  if (storage) {
+    try { storage.setItem(STORAGE_KEYS[key], value); } catch {}
+  } else {
+    // As a last resort, try localStorage so callers don't lose session data
+    try { if (typeof window !== "undefined" && window.localStorage) window.localStorage.setItem(STORAGE_KEYS[key], value); } catch {}
+  }
+}
+
+function removeStorageItem(key: StorageKey) {
+  const storage = getStorage();
+  try { if (storage) storage.removeItem(STORAGE_KEYS[key]); } catch {}
+  try { if (typeof window !== "undefined" && window.localStorage) window.localStorage.removeItem(STORAGE_KEYS[key]); } catch {}
+}
+
 function authHeaders() {
-  const token = localStorage.getItem("pg_token");
+  const token = readStorageItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -127,7 +196,7 @@ export async function pgRemoveFavorite(coinId: string) {
 // Helpers
 export function getStoredUser(): PgUser | null {
   try {
-    const u = localStorage.getItem("pg_user");
+    const u = readStorageItem("user");
     return u ? JSON.parse(u) : null;
   } catch {
     return null;
@@ -135,11 +204,11 @@ export function getStoredUser(): PgUser | null {
 }
 
 export function saveSession(token: string, user: PgUser) {
-  localStorage.setItem("pg_token", token);
-  localStorage.setItem("pg_user", JSON.stringify(user));
+  writeStorageItem("token", token);
+  writeStorageItem("user", JSON.stringify(user));
 }
 
 export function clearSession() {
-  localStorage.removeItem("pg_token");
-  localStorage.removeItem("pg_user");
+  removeStorageItem("token");
+  removeStorageItem("user");
 }

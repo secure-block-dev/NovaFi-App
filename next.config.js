@@ -1,15 +1,20 @@
-/** Minimal Next.js config to host the existing SPA client-side */
+/** @type {import('next').NextConfig} */
 const webpack = require('webpack');
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: '**' },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack(config, { isServer }) {
     config.resolve = config.resolve || {};
     config.resolve.fallback = {
       ...(config.resolve.fallback || {}),
@@ -27,8 +32,6 @@ const nextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       'process/browser': require.resolve('process/browser.js'),
-      '@react-native-async-storage/async-storage': false,
-      'openapi-fetch$': require.resolve('openapi-fetch/dist/index.js'),
     };
 
     config.plugins = config.plugins || [];
@@ -39,17 +42,23 @@ const nextConfig = {
       })
     );
 
-    config.ignoreWarnings = [
-      ...(config.ignoreWarnings || []),
-      {
-        module: /ox[\\/]?.*virtualMasterPool/,
-        message: /Critical dependency: the request of a dependency is an expression/,
-      },
-      {
-        module: /node_modules/,
-        message: /Failed to parse source map/,
-      },
-    ];
+    // Use in-memory cache during development to avoid EBUSY rename errors on Windows
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        config.cache = { type: 'memory' };
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Silence dynamic "Critical dependency" warnings from ox/viem tempo internals
+    config.ignoreWarnings = config.ignoreWarnings || [];
+    config.ignoreWarnings.push((warning) => {
+      if (warning && warning.module && warning.module.resource && warning.message) {
+        return /[\\/]node_modules[\\/]ox[\\/]_esm[\\/]tempo/.test(warning.module.resource) && /Critical dependency/.test(warning.message);
+      }
+      return false;
+    });
 
     return config;
   },

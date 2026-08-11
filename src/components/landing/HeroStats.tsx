@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { m, animate, useInView } from "framer-motion";
+import { motion, animate, useInView } from "framer-motion";
 import { EASE_OUT, fadeUp } from "../../lib/landing/motion";
 
 const STATS = [
@@ -49,7 +49,7 @@ function StatValue({
 /** Animated count-up stats panel. Must render inside a `LazyMotion` provider (Hero's). */
 export default function HeroStats() {
   return (
-    <m.dl
+    <motion.dl
       initial="hidden"
       animate="show"
       variants={fadeUp}
@@ -71,6 +71,6 @@ export default function HeroStats() {
           </dd>
         </div>
       ))}
-    </m.dl>
+    </motion.dl>
   );
 }

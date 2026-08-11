@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import logoIcon from "../../assets/landing/logo-icon.png";
 
 const PAGES: { label: string; href: string }[] = [
@@ -118,9 +118,9 @@ export default function Footer() {
         {/* Links */}
         <div className="mt-14 grid gap-10 sm:grid-cols-2 md:grid-cols-[1.2fr_0.8fr_1.4fr]">
           <div className="sm:col-span-2 md:col-span-1">
-            <Link to="/" className="inline-flex">
+            <Link href="/" className="inline-flex">
               <img
-                src={logoIcon}
+                src={logoIcon.src}
                 alt="novaFi"
                 width={67}
                 height={80}
@@ -154,7 +154,7 @@ export default function Footer() {
               {PAGES.map((link) => (
                 <li key={link.label}>
                   <Link
-                    to={link.href}
+                    href={link.href}
                     className="text-sm text-nova-muted transition-colors hover:text-nova-cyan"
                   >
                     {link.label}

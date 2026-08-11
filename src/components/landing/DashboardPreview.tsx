@@ -1,4 +1,4 @@
-import { m, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { EASE_OUT } from "../../lib/landing/motion";
 import { CRYPTO_LOGOS } from "../../assets/crypto-icons";
 
@@ -30,13 +30,13 @@ export default function DashboardPreview() {
   };
 
   return (
-    <m.div
+    <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.3, ease: EASE_OUT }}
       className="mt-14 w-full [perspective:1200px]"
     >
-      <m.div
+      <motion.div
         onMouseMove={handleMouseMove}
         onMouseLeave={resetTilt}
         style={{ rotateX: springX, rotateY: springY }}
@@ -100,7 +100,7 @@ export default function DashboardPreview() {
                   <stop offset="1" stopColor="#10b981" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <m.path
+              <motion.path
                 d="M0,118 C36,112 54,88 88,92 S150,52 184,62 S250,70 284,48 S344,34 372,26 L400,20"
                 fill="none"
                 stroke="url(#hero-chart-stroke)"
@@ -110,14 +110,14 @@ export default function DashboardPreview() {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: 1.4, delay: 0.5, ease: EASE_OUT }}
               />
-              <m.path
+              <motion.path
                 d="M0,118 C36,112 54,88 88,92 S150,52 184,62 S250,70 284,48 S344,34 372,26 L400,20 L400,140 L0,140 Z"
                 fill="url(#hero-chart-fill)"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 1.1 }}
               />
-              <m.circle
+              <motion.circle
                 cx="400"
                 cy="20"
                 r="4"
@@ -132,7 +132,7 @@ export default function DashboardPreview() {
           {/* Mini price cards */}
           <div className="flex flex-col gap-3">
             {PREVIEW_MARKETS.map((mkt, i) => (
-              <m.div
+              <motion.div
                 key={mkt.name}
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -153,11 +153,11 @@ export default function DashboardPreview() {
                     {mkt.change}
                   </p>
                 </div>
-              </m.div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </m.div>
-    </m.div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
 import { EASE_OUT } from "../../lib/landing/motion";
 import logoFull from "../../assets/landing/logo-full.png";
@@ -16,7 +17,7 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 export default function Navbar() {
-  const { pathname } = useLocation();
+  const { pathname } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -53,9 +54,9 @@ export default function Navbar() {
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <img
-            src={logoFull}
+            src={logoFull.src}
             alt="novaFi"
             width={316}
             height={80}
@@ -67,7 +68,7 @@ export default function Navbar() {
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <Link
-                to={link.href}
+                href={link.href}
                 className={`relative text-sm font-medium transition-colors hover:text-nova-cyan ${
                   isActive(link.href) ? "text-nova-cyan" : "text-nova-muted"
                 }`}
@@ -87,7 +88,7 @@ export default function Navbar() {
           className="hidden md:inline-block"
         >
           <Link
-            to="/swap"
+            href="/swap"
             className="inline-block rounded-full bg-gradient-nova px-5 py-2 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25"
           >
             Launch App
@@ -127,7 +128,7 @@ export default function Navbar() {
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
-                    to={link.href}
+                    href={link.href}
                     className={`block text-base font-medium ${
                       isActive(link.href) ? "text-nova-cyan" : "text-nova-muted"
                     }`}
@@ -138,7 +139,7 @@ export default function Navbar() {
               ))}
               <li>
                 <Link
-                  to="/swap"
+                  href="/swap"
                   className="mt-2 inline-block w-full rounded-full bg-gradient-nova px-5 py-2 text-center text-sm font-semibold text-nova-bg"
                 >
                   Launch App

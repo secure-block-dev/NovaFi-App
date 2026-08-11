@@ -1,4 +1,8 @@
 node_modules/
+.next/
 dist/
 build/
 .cache/
+.env
+.env.*
+!.env.example

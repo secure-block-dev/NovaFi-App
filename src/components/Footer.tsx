@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import logo from "../assets/logo/logo.png";
 
 import Twitter from "../assets/social/twitter.svg";
@@ -35,7 +35,7 @@ export function Footer() {
           {/* Brand */}
           <div className="sm:col-span-1">
             <a href="/" className="flex items-center mb-4">
-              <img src={logo} alt="novaFi" className="h-16 w-16 object-contain" />
+              <img src={logo.src} alt="novaFi" className="h-16 w-16 object-contain" />
             </a>
             <p className="text-slate-500 text-sm leading-relaxed mb-5">
               Decentralized DeFi trading, staking and prediction platform powered by real-time data.
@@ -50,7 +50,7 @@ export function Footer() {
                   className="w-9 h-9 rounded-lg border border-indigo-900/50 flex items-center justify-center hover:border-cyan-500/40 hover:bg-white/5 transition-all"
                   aria-label={label}
                 >
-                  <img src={icon} alt={label} className="w-4 h-4 opacity-60" />
+                  <img src={icon.src} alt={label} className="w-4 h-4 opacity-60" />
                 </a>
               ))}
             </div>
@@ -63,7 +63,7 @@ export function Footer() {
               {LINKS.map(({ label, path }) => (
                 <Link
                   key={path}
-                  to={path}
+                  href={path}
                   className="text-slate-500 text-sm hover:text-cyan-400 transition-colors"
                 >
                   {label}
@@ -79,7 +79,7 @@ export function Footer() {
               {LEGAL.map(({ label, path }) => (
                 <Link
                   key={path}
-                  to={path}
+                  href={path}
                   className="text-slate-500 text-sm hover:text-cyan-400 transition-colors"
                 >
                   {label}

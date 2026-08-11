@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { MARKETS, type Market } from "../../lib/landing/markets";
 import Sparkline from "./Sparkline";
 
@@ -272,7 +272,7 @@ export default function MarketsTable() {
                     </td>
                     <td className="px-4 py-4 text-right">
                       <Link
-                        to="/swap"
+                        href="/swap"
                         className="inline-block rounded-full border border-nova-cyan/30 bg-nova-cyan/10 px-4 py-1.5 text-xs font-semibold text-nova-cyan opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
                       >
                         Trade

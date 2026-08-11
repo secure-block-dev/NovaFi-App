@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 import { EASE_OUT } from "../../lib/landing/motion";
 import { CRYPTO_LOGOS } from "../../assets/crypto-icons";
 import {
@@ -49,7 +49,7 @@ interface CryptoMarqueeProps {
 
 export default function CryptoMarquee({ delay = 0 }: CryptoMarqueeProps) {
   return (
-    <m.div
+    <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: EASE_OUT }}
@@ -88,6 +88,6 @@ export default function CryptoMarquee({ delay = 0 }: CryptoMarqueeProps) {
           ))}
         </div>
       </div>
-    </m.div>
+    </motion.div>
   );
 }

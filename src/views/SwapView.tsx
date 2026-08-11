@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -276,7 +276,7 @@ function TxNotification({
 // ─── Main SwapView ───────────────────────────────────────────────────────────
 
 export default function SwapView() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { account, provider, isWrongNetwork } = useWallet();
   const switchChain = useSwitchChain();
   const { openConnectModal } = useConnectModal();
@@ -568,7 +568,7 @@ export default function SwapView() {
           <button className="px-5 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-950 border border-indigo-700/50 text-white">
             SWAP
           </button>
-          <button onClick={() => navigate("/liquidity")}
+          <button onClick={() => router.push("/liquidity")}
             className="px-5 py-2 rounded-xl text-sm font-semibold transition-all text-slate-500 hover:text-slate-300">
             Liquidity
           </button>

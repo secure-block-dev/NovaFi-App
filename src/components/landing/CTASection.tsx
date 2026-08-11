@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { EASE_OUT } from "../../lib/landing/motion";
 
-const MotionLink = m(Link);
+const MotionLink = (m as any).create ? (m as any).create(Link) : (Link as any);
 
 interface CTASectionProps {
   heading: string;
@@ -17,8 +17,6 @@ export default function CTASection({
   primaryLabel,
   primaryHref,
 }: CTASectionProps) {
-  // Internal routes (e.g. "/swap") go through react-router so navigation
-  // stays client-side; external/mailto/tel links use a plain anchor.
   const isInternal = primaryHref.startsWith("/");
 
   return (
@@ -46,7 +44,7 @@ export default function CTASection({
         <p className="mx-auto mt-4 max-w-xl text-nova-muted">{description}</p>
         {isInternal ? (
           <MotionLink
-            to={primaryHref}
+            href={primaryHref}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.98 }}
             className="mt-8 inline-block rounded-full bg-gradient-nova-animated px-8 py-3.5 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25 transition-shadow hover:shadow-xl hover:shadow-nova-emerald/35"

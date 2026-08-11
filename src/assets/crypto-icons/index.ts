@@ -6,10 +6,10 @@ import btcb       from "./bitcoin.png";
 import cake       from "./pancakeswap.png";
 
 export const CRYPTO_LOGOS: Record<string, string> = {
-  BNB:  bnb,
-  BUSD: busd,
-  USDT: usdt,
-  ETH:  eth,
-  BTCB: btcb,
-  CAKE: cake,
+  BNB:  bnb.src,
+  BUSD: busd.src,
+  USDT: usdt.src,
+  ETH:  eth.src,
+  BTCB: btcb.src,
+  CAKE: cake.src,
 };
