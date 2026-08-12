@@ -21,7 +21,7 @@ npm i
 Start the development server:
 
 ```bash
-npm start
+npm run dev
 ```
 
 The app runs locally on [http://localhost:2588](http://localhost:2588).
