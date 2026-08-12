@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { providers } from "ethers";
 import { useAccount, useBalance, useConnectorClient } from "wagmi";
-import { BSC_CHAIN_ID } from "../constants/contracts";
+import { SUPPORTED_WALLET_CHAIN_IDS } from "../constants/contracts";
 
 /**
  * Global wallet connection state — single source of truth for the app.
@@ -39,8 +39,8 @@ export function useWallet() {
     isConnected,
     /** true while connecting or restoring the session on page reload */
     isConnecting: isConnecting || isReconnecting,
-    /** connected but off BSC — block write actions */
-    isWrongNetwork: isConnected && chainId !== BSC_CHAIN_ID,
+    /** connected but on an unsupported wallet network */
+    isWrongNetwork: isConnected && !SUPPORTED_WALLET_CHAIN_IDS.includes(chainId ?? 0),
     /** formatted BNB balance (e.g. "0.4213") or null if no account */
     balance: balanceData ? balanceData.formatted : null,
     balanceSymbol: balanceData?.symbol ?? "BNB",

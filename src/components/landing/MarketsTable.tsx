@@ -272,7 +272,12 @@ export default function MarketsTable() {
                     </td>
                     <td className="px-4 py-4 text-right">
                       <Link
-                        href="/swap"
+                        href="/login"
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                          }
+                        }}
                         className="inline-block rounded-full border border-nova-cyan/30 bg-nova-cyan/10 px-4 py-1.5 text-xs font-semibold text-nova-cyan opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
                       >
                         Trade

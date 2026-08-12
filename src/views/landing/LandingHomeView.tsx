@@ -22,8 +22,8 @@ export default function LandingHomeView() {
       <CTASection
         heading="Ready to start trading?"
         description="Create your account in minutes and get access to 180+ markets with institutional-grade tools."
-        primaryLabel="Get Started"
-        primaryHref="/swap"
+        primaryLabel="Start trading"
+        primaryHref="/login"
       />
     </>
   );

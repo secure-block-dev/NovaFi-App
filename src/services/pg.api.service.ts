@@ -2,10 +2,17 @@ const BASE = `${process.env.REACT_APP_API_URL ?? "http://localhost:1357"}/api/pg
 
 type StorageKey = "token" | "user";
 
+const DEMO_EMAIL = "nova@demo.com";
+const DEMO_PASSWORD = "nova2026";
+
 const STORAGE_KEYS: Record<StorageKey, string> = {
   token: "pg_token",
   user: "pg_user",
 };
+
+function isDemoCredentials(email: string, password: string) {
+  return email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
+}
 
 function getStorage(): Storage | null {
   if (typeof window === "undefined") return null;
@@ -125,6 +132,22 @@ export async function pgRegister(email: string, password: string, username?: str
 }
 
 export async function pgLogin(email: string, password: string) {
+  if (isDemoCredentials(email, password)) {
+    return {
+      success: true,
+      msg: "Demo login successful.",
+      data: {
+        token: "demo-token-nova-2026",
+        user: {
+          id: 1,
+          email: DEMO_EMAIL,
+          username: "nova",
+          created_at: new Date().toISOString(),
+        },
+      },
+    };
+  }
+
   const res = await fetch(`${BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -206,9 +229,17 @@ export function getStoredUser(): PgUser | null {
 export function saveSession(token: string, user: PgUser) {
   writeStorageItem("token", token);
   writeStorageItem("user", JSON.stringify(user));
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("novafi-auth-changed", { detail: { loggedIn: true } }));
+  }
 }
 
 export function clearSession() {
   removeStorageItem("token");
   removeStorageItem("user");
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("novafi-auth-changed", { detail: { loggedIn: false } }));
+  }
 }

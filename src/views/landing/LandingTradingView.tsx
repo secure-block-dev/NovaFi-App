@@ -22,8 +22,8 @@ export default function LandingTradingView() {
       <CTASection
         heading="Your next trade starts here"
         description="Open an account and get instant access to every market on novaFi."
-        primaryLabel="Open an Account"
-        primaryHref="/swap"
+        primaryLabel="Start trading"
+        primaryHref="/login"
       />
     </>
   );

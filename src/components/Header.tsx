@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useConnectModal, useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
+import { useDisconnect } from "wagmi";
+import { useSwitchChain } from "../hooks/useSwitchChain";
 import { useWallet } from "../hooks/useWallet";
+import {
+  ARBITRUM_CHAIN_ID,
+  AVALANCHE_CHAIN_ID,
+  BASE_CHAIN_ID,
+  BSC_CHAIN_ID,
+  ETH_CHAIN_ID,
+  OPTIMISM_CHAIN_ID,
+  POLYGON_CHAIN_ID,
+} from "../constants/contracts";
 import logo from "../assets/logo/logoNovaFi.png";
+import SolanaWalletButton from "./SolanaWalletButton";
 
 const NAV_LINKS = [
   { label: "Swap", path: "/swap" },
@@ -15,15 +27,72 @@ const NAV_LINKS = [
 ];
 
 export function Header() {
-  const { account, balance, isWrongNetwork, isConnecting } = useWallet();
+  const { account, balance, isWrongNetwork, isConnecting, chainId } = useWallet();
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { openChainModal } = useChainModal();
+  const { disconnect } = useDisconnect();
+  const switchChain = useSwitchChain();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+
+  const refreshAuthState = () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const auth = require("../../scripts/auth-helper.js");
+      setIsAuthenticated(Boolean(auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn()));
+    } catch {
+      setIsAuthenticated(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshAuthState();
+
+    if (typeof window === "undefined") return;
+
+    const handleAuthChange = () => refreshAuthState();
+    window.addEventListener("novafi-auth-changed", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("novafi-auth-changed", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
 
   const truncate = (addr: string) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : "";
   const isActive = (path: string) => router.pathname === path;
+  const networkOptions = [
+    { id: BSC_CHAIN_ID, label: "BNB" },
+    { id: ETH_CHAIN_ID, label: "ETH" },
+    { id: POLYGON_CHAIN_ID, label: "Polygon" },
+    { id: ARBITRUM_CHAIN_ID, label: "Arbitrum" },
+    { id: OPTIMISM_CHAIN_ID, label: "Optimism" },
+    { id: AVALANCHE_CHAIN_ID, label: "Avalanche" },
+    { id: BASE_CHAIN_ID, label: "Base" },
+  ];
+
+  const handleExitTrading = (disconnectWallets: boolean) => {
+    if (typeof window !== "undefined") {
+      const { clearSession } = require("../../scripts/auth-helper.js");
+      clearSession();
+    }
+
+    if (disconnectWallets) {
+      try {
+        disconnect();
+      } catch {
+        // no-op; wallet was already disconnected or unavailable
+      }
+    }
+
+    setShowExitDialog(false);
+    void router.push("/");
+  };
 
   return (
     <>
@@ -36,30 +105,63 @@ export function Header() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {NAV_LINKS.map(({ label, path }) => (
-              <Link
-                key={path}
-                href={path}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive(path)
-                    ? "bg-indigo-950 border border-indigo-700/50 text-white"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+          {isAuthenticated && (
+            <nav className="hidden lg:flex items-center gap-1">
+              {NAV_LINKS.map(({ label, path }) => (
+                <Link
+                  key={path}
+                  href={path}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    isActive(path)
+                      ? "bg-indigo-950 border border-indigo-700/50 text-white"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/swap"
-              className="hidden sm:inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border border-indigo-800/50 text-slate-300 hover:border-cyan-500/40 hover:text-white hover:bg-white/5 transition-all"
-            >
-              Buy &amp; Sell
-            </Link>
+            {!isAuthenticated && router.pathname !== "/login" && (
+              <Link
+                href="/login"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                  }
+                }}
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border border-indigo-800/50 text-slate-300 hover:border-cyan-500/40 hover:text-white hover:bg-white/5 transition-all"
+              >
+                Sign in / Register
+              </Link>
+            )}
+
+            {account && (
+              <div className="hidden md:flex items-center rounded-xl border border-white/10 bg-white/5 px-2 py-1.5">
+                <span className="mr-2 text-[10px] uppercase tracking-[0.22em] text-slate-400">Chain</span>
+                <select
+                  aria-label="Select wallet network"
+                  value={chainId ?? BSC_CHAIN_ID}
+                  onChange={(event) => {
+                    const nextChainId = Number(event.target.value);
+                    void switchChain(nextChainId);
+                  }}
+                  className="bg-transparent text-xs font-medium text-slate-200 outline-none"
+                >
+                  {networkOptions.map((network) => (
+                    <option key={network.id} value={network.id} className="bg-[#0b0d1a] text-slate-200">
+                      {network.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Solana wallet UI is intentionally hidden for now while the app stays focused on the EVM flow. */}
+
             <button
               onClick={() =>
                 isWrongNetwork
@@ -70,7 +172,7 @@ export function Header() {
               }
               disabled={isConnecting}
               aria-label={account ? "Wallet account" : "Connect wallet"}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait ${
+              className={`flex min-w-[168px] items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait whitespace-nowrap ${
                 isWrongNetwork
                   ? "bg-gradient-to-r from-rose-500 to-pink-600 shadow-rose-500/20"
                   : "bg-gradient-to-r from-cyan-500 to-violet-600 shadow-cyan-500/20"
@@ -81,18 +183,59 @@ export function Header() {
               ) : isWrongNetwork ? (
                 "Wrong network"
               ) : account ? (
-                <>
-                  {balance && (
-                    <span className="hidden sm:inline text-white/80 font-medium mr-2">
-                      {parseFloat(balance).toFixed(3)} BNB
-                    </span>
-                  )}
-                  {truncate(account)}
-                </>
+                <span className="max-w-[110px] truncate">{truncate(account)}</span>
               ) : (
                 "Connect Wallet"
               )}
             </button>
+
+            {router.pathname === "/login" && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                  }
+                  void router.push("/");
+                }}
+                aria-label="Return to landing page"
+                title="Return to landing page"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/40 bg-gradient-to-r from-slate-900/80 to-slate-800/80 text-slate-200 transition hover:border-cyan-300/60 hover:text-white"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 17l5-5-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
+
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (account) {
+                    setShowExitDialog(true);
+                    return;
+                  }
+
+                  if (typeof window !== "undefined") {
+                    const { clearSession } = require("../../scripts/auth-helper.js");
+                    clearSession();
+                  }
+                  void router.push("/");
+                }}
+                aria-label="Exit trading and return to landing page"
+                title="Exit trading"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:border-cyan-500/40 hover:text-white"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 17l5-5-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
 
             {/* Hamburger */}
             <button
@@ -114,7 +257,7 @@ export function Header() {
         </div>
 
         {/* Mobile dropdown */}
-        {mobileOpen && (
+        {mobileOpen && isAuthenticated && (
           <div className="lg:hidden border-t border-indigo-900/30 bg-[#03030f]/95 backdrop-blur-xl px-4 py-3 flex flex-col gap-1">
             {NAV_LINKS.map(({ label, path }) => (
               <Link
@@ -140,6 +283,35 @@ export function Header() {
           </div>
         )}
       </header>
+
+      {showExitDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#02040b]/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-indigo-900/50 bg-[#0b0d1a] p-6 shadow-2xl shadow-indigo-950/30">
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-400">Exit trading</p>
+            <h3 className="mt-3 text-xl font-semibold text-white">Keep your wallet connected?</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              You can leave the trading dashboard and return to the landing page. Choose whether to keep your wallet connection active or disconnect it completely.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => handleExitTrading(false)}
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-500/40 hover:text-white"
+              >
+                Keep connected
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExitTrading(true)}
+                className="flex-1 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Disconnect wallet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -45,6 +45,11 @@ export default function CTASection({
         {isInternal ? (
           <MotionLink
             href={primaryHref}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+              }
+            }}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.98 }}
             className="mt-8 inline-block rounded-full bg-gradient-nova-animated px-8 py-3.5 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25 transition-shadow hover:shadow-xl hover:shadow-nova-emerald/35"

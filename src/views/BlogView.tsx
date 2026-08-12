@@ -198,7 +198,7 @@ export default function BlogView() {
                 <button onClick={() => setShowAuth(true)}
                   className="mt-2 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-semibold hover:opacity-90 transition-all"
                 >
-                  Sign in / Register
+                  Start trading
                 </button>
               </div>
             )}

@@ -1,32 +1,35 @@
+/**
+ * Allow wallet connections on the app's supported public chains.
+ *
+ * The trading logic is still BSC-oriented, but the wallet layer should not be
+ * blocked solely because a user is connected to Ethereum or Polygon.
+ */
 import { useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useSwitchChain } from "../hooks/useSwitchChain";
-import { BSC_CHAIN_ID } from "../constants/contracts";
 
-/**
- * Auto-prompts a switch to BSC right after a wallet connects on the wrong
- * chain, instead of waiting for the user to find and click the "Wrong
- * network" button. Runs once per (isConnected, chainId) pair — if the user
- * rejects the wallet's switch prompt, this won't re-fire on its own; the
- * "Wrong network" button remains as a manual retry.
- *
- * This is deliberately a separate, post-connect effect rather than an
- * `initialChain` forced during the connect handshake — the latter hits an
- * open wagmi v2 bug (wevm/wagmi#4118) where connectAsync can hang forever
- * when the wallet isn't already on the requested chain.
- */
 export function NetworkGuard() {
   const { isConnected, chainId } = useAccount();
   const switchChain = useSwitchChain();
   const attemptedFor = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!isConnected || chainId === undefined || chainId === BSC_CHAIN_ID) {
+    if (!isConnected || chainId === undefined) return;
+
+    const supported = [
+      1, 56, 137, 42161, 10, 43114, 8453,
+    ].includes(chainId);
+    if (supported) {
+      attemptedFor.current = undefined;
       return;
     }
+
     if (attemptedFor.current === chainId) return;
     attemptedFor.current = chainId;
-    switchChain(BSC_CHAIN_ID);
+
+    // If the wallet lands on a completely unsupported network, keep the
+    // legacy BNB reminder as the default fallback.
+    switchChain(56);
   }, [isConnected, chainId, switchChain]);
 
   return null;

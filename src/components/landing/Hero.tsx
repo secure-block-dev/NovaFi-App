@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { fadeUp } from "../../lib/landing/motion";
@@ -154,12 +155,17 @@ export default function Hero() {
             className="mt-10 flex flex-col gap-4 sm:flex-row"
           >
             <MotionLink
-              href="/swap"
+              href="/login"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                }
+              }}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.98 }}
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-nova-animated px-8 py-3.5 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25 transition-shadow hover:shadow-xl hover:shadow-nova-emerald/35"
             >
-              Start Trading
+              Get started
               <svg
                 viewBox="0 0 24 24"
                 className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

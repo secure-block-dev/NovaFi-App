@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import logo from "../assets/logo/logo.png";
 
@@ -27,6 +27,34 @@ const LEGAL = [
 ];
 
 export function Footer() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const refreshAuthState = () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const auth = require("../../scripts/auth-helper.js");
+      setIsAuthenticated(Boolean(auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn()));
+    } catch {
+      setIsAuthenticated(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshAuthState();
+
+    if (typeof window === "undefined") return;
+
+    const handleAuthChange = () => refreshAuthState();
+    window.addEventListener("novafi-auth-changed", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("novafi-auth-changed", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
   return (
     <footer className="mt-24 border-t border-indigo-900/30 bg-[#03030f]/60 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-8 py-12">
@@ -57,20 +85,22 @@ export function Footer() {
           </div>
 
           {/* Product */}
-          <div>
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-4">Product</div>
-            <div className="flex flex-col gap-2.5">
-              {LINKS.map(({ label, path }) => (
-                <Link
-                  key={path}
-                  href={path}
-                  className="text-slate-500 text-sm hover:text-cyan-400 transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
+          {isAuthenticated && (
+            <div>
+              <div className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-4">Product</div>
+              <div className="flex flex-col gap-2.5">
+                {LINKS.map(({ label, path }) => (
+                  <Link
+                    key={path}
+                    href={path}
+                    className="text-slate-500 text-sm hover:text-cyan-400 transition-colors"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Legal */}
           <div>

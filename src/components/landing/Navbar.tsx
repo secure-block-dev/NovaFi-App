@@ -88,10 +88,15 @@ export default function Navbar() {
           className="hidden md:inline-block"
         >
           <Link
-            href="/swap"
+            href="/login"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+              }
+            }}
             className="inline-block rounded-full bg-gradient-nova px-5 py-2 text-sm font-semibold text-nova-bg shadow-lg shadow-nova-emerald/25"
           >
-            Launch App
+            Sign in / Register
           </Link>
         </m.div>
 
@@ -139,10 +144,15 @@ export default function Navbar() {
               ))}
               <li>
                 <Link
-                  href="/swap"
+                  href="/login"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                    }
+                  }}
                   className="mt-2 inline-block w-full rounded-full bg-gradient-nova px-5 py-2 text-center text-sm font-semibold text-nova-bg"
                 >
-                  Launch App
+                  Sign in / Register
                 </Link>
               </li>
             </ul>
