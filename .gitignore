@@ -3,6 +3,7 @@ node_modules/
 dist/
 build/
 .cache/
+*.tsbuildinfo
 .env
 .env.*
 !.env.example
