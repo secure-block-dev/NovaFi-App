@@ -2,13 +2,13 @@
 
 ![NovaFi Landing Page](./public/landing_page.png)
 
-NovaFi is a Web3-focused technology company developing decentralized applications that combine blockchain infrastructure with engaging user experiences.
+NovaFi is a decentralized crypto trading platform designed to make digital asset exchange faster, simpler, and more engaging. The project combines non-custodial trading, AMM-powered liquidity, and a modern user experience to help users access crypto markets without relying on centralized intermediaries.
 
-Our current focus is building a next-generation non-custodial crypto trading platform powered by an Automated Market Maker (AMM) system. The main idea behind the platform is to allow users to trade and interact with digital assets in a decentralized environment without depending on traditional intermediaries such as brokers, banks, or centralized exchanges.
+The platform focuses on delivering a streamlined trading flow for spot and derivative-style market activity, with real-time market visibility, multi-chain support, and wallet-based access. Users can explore assets, switch networks, connect wallets, and move between trading and liquidity experiences in a single ecosystem.
 
-However, we are not trying to build just another decentralized exchange. Our vision is to create a more complete Web3 financial ecosystem by combining decentralized trading infrastructure with interactive experiences, prediction features, and gamified engagement mechanisms.
+Beyond basic swaps, the product is designed to feel more like an interactive Web3 financial experience. It includes product sections for market discovery, trading pages, and engagement-focused features that help users stay connected to the platform beyond simple transactions.
 
-We believe the future of decentralized applications will not only be about transactions—it will be about creating ecosystems where users actively participate, interact, and build long-term relationships with the platform.
+The overall goal is to create a polished DeFi experience that blends infrastructure, usability, and community-driven participation in one platform.
 
 ## Setup
 
