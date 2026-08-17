@@ -32,7 +32,7 @@ export default function BackToTopButton() {
         const eased = easeOutCubic(progress);
         const nextPosition = start * (1 - eased);
 
-        element.scrollTop = nextPosition;
+        element.scrollTop = Math.max(0, nextPosition);
 
         if (progress < 1) {
           requestAnimationFrame(tick);

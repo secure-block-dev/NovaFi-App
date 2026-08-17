@@ -8,14 +8,20 @@ import LandingNavbar from "./components/landing/Navbar";
 import LandingFooter from "./components/landing/Footer";
 import BackToTopButton from "./components/landing/BackToTopButton";
 import { NetworkGuard } from "./components/NetworkGuard";
+import { isLoggedIn, redirectIfAuthenticated } from "./utils/clientAuth";
+import { isAdminLoggedIn } from "./admin/api";
 
 type AppProps = {
   children?: ReactNode;
 };
 
 const landingRoutes = ["/", "/trading", "/about"];
-const publicRoutes = ["/", "/login", "/about", "/trading", "/cookies", "/privacy-policy", "/terms-conditions"];
 const protectedRoutes = ["/swap", "/overview", "/liquidity", "/coins", "/blog", "/nft"];
+const adminPublicRoutes = ["/admin/login"];
+
+function isAdminRoute(pathname: string) {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
 
 const Layout = ({ children }: { children: ReactNode }) => (
   <>
@@ -37,6 +43,7 @@ const LandingLayout = ({ children }: { children: ReactNode }) => (
 function App({ children }: AppProps) {
   const router = useRouter();
   const isLandingRoute = landingRoutes.includes(router.pathname);
+  const isAdminPath = isAdminRoute(router.pathname);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -46,7 +53,9 @@ function App({ children }: AppProps) {
         (window as any).Buffer = Buffer;
       }
     }
+  }, []);
 
+  useEffect(() => {
     if (typeof window === "undefined") return;
 
     const handleRouteChangeComplete = () => {
@@ -57,38 +66,56 @@ function App({ children }: AppProps) {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
     };
+  }, [router.events]);
 
-    try {
-      const auth = require("../scripts/auth-helper.js");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-      if (router.pathname === "/") {
-        if (auth && typeof auth.redirectIfAuthenticated === "function") {
-          void auth.redirectIfAuthenticated(router);
+    if (isAdminPath) {
+      if (router.pathname === "/admin/login") {
+        if (isAdminLoggedIn()) {
+          router.push("/admin");
         }
         return;
       }
 
-      if (router.pathname === "/login") {
-        if (auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn()) {
-          router.push("/swap");
-        }
-        return;
+      if (!adminPublicRoutes.includes(router.pathname) && !isAdminLoggedIn()) {
+        router.push("/admin/login");
       }
-
-      const shouldProtect = protectedRoutes.includes(router.pathname);
-      if (shouldProtect && auth && typeof auth.isLoggedIn === "function" && !auth.isLoggedIn()) {
-        router.push("/login");
-      }
-    } catch (error) {
-      console.warn("Auth helper not available:", error);
+      return;
     }
-  }, [router.pathname]);
+
+    if (router.pathname === "/") {
+      void redirectIfAuthenticated(router);
+      return;
+    }
+
+    if (router.pathname === "/login") {
+      if (isLoggedIn()) {
+        router.push("/swap");
+      }
+      return;
+    }
+
+    const shouldProtect = protectedRoutes.includes(router.pathname);
+    if (shouldProtect && !isLoggedIn()) {
+      router.push("/login");
+    }
+  }, [router.pathname, isAdminPath]);
+
+  const content = isAdminPath ? (
+    children
+  ) : isLandingRoute ? (
+    <LandingLayout>{children}</LandingLayout>
+  ) : (
+    <Layout>{children}</Layout>
+  );
 
   return (
     <>
-      <NetworkGuard />
+      {!isAdminPath && <NetworkGuard />}
       <div className="relative w-full overflow-x-hidden min-h-screen" id="dashboard">
-        {isLandingRoute ? <LandingLayout>{children}</LandingLayout> : <Layout>{children}</Layout>}
+        {content}
       </div>
       <ToastContainer />
     </>

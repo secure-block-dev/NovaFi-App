@@ -33,17 +33,7 @@ const BASE_URL = (() => {
   return 'http://localhost:1357';
 })();
 
-function getStorage() {
-  if (typeof window === 'undefined') return null;
-  try {
-    return window.sessionStorage || window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
-function readStorageItem(key) {
-  const storage = getStorage();
+function readStorageItem(storage, key) {
   if (!storage) return null;
   try {
     return storage.getItem(STORAGE_KEYS[key]) || null;
@@ -52,36 +42,26 @@ function readStorageItem(key) {
   }
 }
 
-function writeStorageItem(key, value) {
-  const storage = getStorage();
+function writeStorageItem(storage, key, value) {
   if (!storage) return;
   try {
     storage.setItem(STORAGE_KEYS[key], value);
   } catch {
-    // Ignore storage quota/access issues in browser environments.
+    // no-op
   }
 }
 
-function removeStorageItem(key) {
-  const storage = getStorage();
+function removeStorageItem(storage, key) {
   if (!storage) return;
   try {
     storage.removeItem(STORAGE_KEYS[key]);
   } catch {
-    // Ignore removal failures.
+    // no-op
   }
 }
 
 async function sha256(value) {
   const text = typeof value === 'string' ? value : String(value);
-
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
-    const data = new TextEncoder().encode(text);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(digest))
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('');
-  }
 
   try {
     const crypto = require('crypto');
@@ -133,10 +113,10 @@ function validateCredentials(email, password) {
   };
 }
 
-function getSession() {
+function getSession(storage) {
   try {
-    const token = readStorageItem('token');
-    const user = readStorageItem('user');
+    const token = readStorageItem(storage, 'token');
+    const user = readStorageItem(storage, 'user');
     if (!token) return null;
     return {
       token,
@@ -147,21 +127,17 @@ function getSession() {
   }
 }
 
-function isLoggedIn() {
-  return Boolean(getSession());
+function isLoggedIn(storage) {
+  return Boolean(getSession(storage));
 }
 
-function clearSession() {
-  removeStorageItem('token');
-  removeStorageItem('user');
-
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('novafi-auth-changed', { detail: { loggedIn: false } }));
-  }
+function clearSession(storage) {
+  removeStorageItem(storage, 'token');
+  removeStorageItem(storage, 'user');
 }
 
-async function verifyTokenWithApi() {
-  const session = getSession();
+async function verifyTokenWithApi(storage) {
+  const session = getSession(storage);
   if (!session || !session.token) {
     return { ok: false, reason: 'No active session.' };
   }
@@ -180,45 +156,21 @@ async function verifyTokenWithApi() {
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/api/pg/auth/me`, {
+    const { requestPg } = require('./services/httpClient');
+    const result = await requestPg({
+      url: '/api/pg/auth/me',
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: `Bearer ${session.token}` },
     });
 
-    const data = await response.json();
-    if (response.ok && data && data.success) {
-      return { ok: true, user: data.data || session.user, session };
+    if (result.ok && result.data?.success) {
+      return { ok: true, user: result.data.data || session.user, session };
     }
 
-    return { ok: false, reason: data?.msg || 'Session invalid.' };
+    return { ok: false, reason: result.data?.msg || 'Session invalid.' };
   } catch (error) {
     return { ok: false, reason: error?.message || 'Network error.' };
   }
-}
-
-function redirectIfAuthenticated(router) {
-  if (typeof window === 'undefined') return Promise.resolve(false);
-
-  return (async () => {
-    const session = getSession();
-    if (!session || !session.token) return false;
-
-    const valid = await verifyTokenWithApi();
-    if (valid.ok) {
-      if (router && typeof router.push === 'function') {
-        router.push('/swap');
-      } else {
-        window.location.href = '/swap';
-      }
-      return true;
-    }
-
-    clearSession();
-    return false;
-  })();
 }
 
 module.exports = {
@@ -233,5 +185,4 @@ module.exports = {
   isLoggedIn,
   clearSession,
   verifyTokenWithApi,
-  redirectIfAuthenticated,
 };

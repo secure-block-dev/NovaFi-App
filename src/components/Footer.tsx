@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import logo from "../assets/logo/logo.png";
+import { isLoggedIn } from "../utils/clientAuth";
 
 import Twitter from "../assets/social/twitter.svg";
 import Discord from "../assets/social/discord.svg";
@@ -30,14 +31,7 @@ export function Footer() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const refreshAuthState = () => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const auth = require("../../scripts/auth-helper.js");
-      setIsAuthenticated(Boolean(auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn()));
-    } catch {
-      setIsAuthenticated(false);
-    }
+    setIsAuthenticated(isLoggedIn());
   };
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useConnectModal, useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
 import { useDisconnect } from "wagmi";
+import { clearSession, isLoggedIn } from "../utils/clientAuth";
 import { useSwitchChain } from "../hooks/useSwitchChain";
 import { useWallet } from "../hooks/useWallet";
 import {
@@ -39,14 +40,7 @@ export function Header() {
   const [showExitDialog, setShowExitDialog] = useState(false);
 
   const refreshAuthState = () => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const auth = require("../../scripts/auth-helper.js");
-      setIsAuthenticated(Boolean(auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn()));
-    } catch {
-      setIsAuthenticated(false);
-    }
+    setIsAuthenticated(isLoggedIn());
   };
 
   useEffect(() => {
@@ -77,10 +71,7 @@ export function Header() {
   ];
 
   const handleExitTrading = (disconnectWallets: boolean) => {
-    if (typeof window !== "undefined") {
-      const { clearSession } = require("../../scripts/auth-helper.js");
-      clearSession();
-    }
+    clearSession();
 
     if (disconnectWallets) {
       try {
@@ -219,10 +210,7 @@ export function Header() {
                     return;
                   }
 
-                  if (typeof window !== "undefined") {
-                    const { clearSession } = require("../../scripts/auth-helper.js");
-                    clearSession();
-                  }
+                  clearSession();
                   void router.push("/");
                 }}
                 aria-label="Exit trading and return to landing page"

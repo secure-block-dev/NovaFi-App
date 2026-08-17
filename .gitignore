@@ -7,3 +7,5 @@ build/
 .env
 .env.*
 !.env.example
+admin/.admin-server.log
+admin/.admin-server.pid

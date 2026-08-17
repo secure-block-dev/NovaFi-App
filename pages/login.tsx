@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { pgLogin, pgRegister, saveSession } from "../src/services/pg.api.service";
+import { redirectIfAuthenticated, validateCredentials } from "../src/utils/clientAuth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,14 +19,7 @@ export default function LoginPage() {
     document.body.scrollTop = 0;
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-    try {
-      const auth = require("../scripts/auth-helper.js");
-      if (auth && typeof auth.redirectIfAuthenticated === "function") {
-        void auth.redirectIfAuthenticated(router);
-      }
-    } catch (err) {
-      console.warn("Auth helper not loaded:", err);
-    }
+    void redirectIfAuthenticated(router);
   }, [router.asPath]);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -35,12 +29,7 @@ export default function LoginPage() {
     if (typeof window === "undefined") return;
 
     try {
-      const auth = require("../scripts/auth-helper.js");
-      if (!auth || typeof auth.validateCredentials !== "function") {
-        throw new Error("Auth helper is unavailable");
-      }
-
-      const validation = auth.validateCredentials(email, password);
+      const validation = validateCredentials(email, password);
       if (!validation.ok) {
         setError(validation.message);
         return;
