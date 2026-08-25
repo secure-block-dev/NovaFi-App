@@ -29,7 +29,7 @@
     "qr": "0.5.5"
   },
   "scripts": {
-    "dev": "concurrently \"npm:dev:*\"",
+    "dev": "concurrently --raw \"npm:dev:*\"",
     "dev:web": "next dev -p 2588",
     "dev:admin": "npm run dev -w admin",
     "start": "npm run dev",
