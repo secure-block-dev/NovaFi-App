@@ -2,6 +2,9 @@
   "name": "novafi",
   "version": "1.0.1",
   "private": true,
+  "workspaces": [
+    "admin"
+  ],
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@solana/wallet-adapter-phantom": "^0.9.29",
@@ -26,13 +29,11 @@
     "qr": "0.5.5"
   },
   "scripts": {
-    "dev": "next dev -p 2588",
-    "dev:admin": "npm --prefix admin run dev",
+    "dev": "concurrently \"npm:dev:*\"",
+    "dev:web": "next dev -p 2588",
+    "dev:admin": "npm run dev -w admin",
+    "start": "npm run dev",
     "build": "next build",
-    "start": "node scripts/start.js",
-    "start:prod": "next start -p 2588",
-    "admin:start": "npm --prefix admin start",
-    "postinstall": "node scripts/postinstall.js",
     "lint": "next lint"
   },
   "eslintConfig": {
@@ -60,6 +61,7 @@
     "assert": "^2.1.0",
     "autoprefixer": "^10.4.19",
     "buffer": "^6.0.3",
+    "concurrently": "^10.0.5",
     "crypto-browserify": "^3.12.1",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
