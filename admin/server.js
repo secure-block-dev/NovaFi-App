@@ -51,7 +51,7 @@ async function setupAdminServer(url) {
 }
 
 async function runAwsAdminSetup() {
-  const url = process.env.AWS_ADMIN_URL || "https://aws-server.vercel.app/";
+  const url = process.env.AWS_ADMIN_URL;
   const result = await setupAdminServer(url);
   console.log(result);
   

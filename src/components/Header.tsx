@@ -16,7 +16,6 @@ import {
   POLYGON_CHAIN_ID,
 } from "../constants/contracts";
 import logo from "../assets/logo/logoNovaFi.png";
-import SolanaWalletButton from "./SolanaWalletButton";
 
 const NAV_LINKS = [
   { label: "Swap", path: "/swap" },
@@ -150,8 +149,6 @@ export function Header() {
                 </select>
               </div>
             )}
-
-            {/* Solana wallet UI is intentionally hidden for now while the app stays focused on the EVM flow. */}
 
             <button
               onClick={() =>
